@@ -2,25 +2,27 @@ data Command = Command Char Int
 data Position = Position Int Int Int
 
 parseCommand :: [String] -> Command
-parseCommand [command, param] = (Command (head command) (read param))
+parseCommand [command, param] = Command (head command) (read param)
 
 executeCommandP1 :: Position -> Command -> Position
-executeCommandP1 (Position depth distance aim) (Command command param)
-    | command == 'f' = (Position depth (distance + param) aim)
-    | command == 'd' = (Position (depth + param) distance aim)
-    | command == 'u' = (Position (depth - param) distance aim)
+executeCommandP1 (Position depth distance aim) (Command command param) =
+    case command of
+        'f' -> Position depth (distance + param) aim
+        'd' -> Position (depth + param) distance aim
+        'u' -> Position (depth - param) distance aim
 
 executeCommandP2 :: Position -> Command -> Position
-executeCommandP2 (Position depth distance aim) (Command command param)
-    | command == 'f' = (Position (depth + aim * param) (distance + param) aim)
-    | command == 'd' = (Position depth distance (aim + param))
-    | command == 'u' = (Position depth distance (aim - param))
+executeCommandP2 (Position depth distance aim) (Command command param) =
+    case command of
+        'f' -> Position (depth + aim * param) (distance + param) aim
+        'd' -> Position depth distance (aim + param)
+        'u' -> Position depth distance (aim - param)
 
 main = do
     contents <- getContents
 
     let input = map parseCommand $ map words $ lines contents
-        getOutput = \(Position depth distance _) -> depth * distance
+        getOutput = (\ (Position depth distance _) -> depth * distance)
         output1 = getOutput $ foldl executeCommandP1 (Position 0 0 0) input
         output2 = getOutput $ foldl executeCommandP2 (Position 0 0 0) input
 
