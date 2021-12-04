@@ -2,7 +2,7 @@ import Data.List
 
 mostCommonDigit :: String -> Char
 mostCommonDigit input =
-    let zeroes = length $ filter (\ c -> c == '0') input
+    let zeroes = length $ filter (== '0') input
     in  if (zeroes * 2) > length input then '0' else '1'
 
 invertDigit :: Char -> Char
