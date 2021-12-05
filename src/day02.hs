@@ -23,11 +23,9 @@ main = do
 
     let input = map parseCommand $ map words $ lines contents
         getOutput = (\ (Position depth distance _) -> depth * distance)
-        output1 = getOutput $ foldl executeCommandP1 (Position 0 0 0) input
-        output2 = getOutput $ foldl executeCommandP2 (Position 0 0 0) input
 
     putStr "Position times depth for part 1: "
-    putStrLn (show output1)
+    putStrLn $ show $ getOutput $ foldl executeCommandP1 (Position 0 0 0) input
 
     putStr "Position times depth for part 2: "
-    putStrLn (show output2)
+    putStrLn $ show $ getOutput $ foldl executeCommandP2 (Position 0 0 0) input
