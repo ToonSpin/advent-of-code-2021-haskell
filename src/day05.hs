@@ -20,7 +20,7 @@ parseLine s =
 isDiagonal :: Line -> Bool
 isDiagonal (Point x1 y1, Point x2 y2) = x1 /= x2 && y1 /= y2
 
--- This assumes x1  /= x2 || y1 /= y2, because makeRange will return an infinite
+-- This assumes x1 /= x2 || y1 /= y2, because makeRange will return an infinite
 -- list if m == n
 expand :: Line -> [Point]
 expand (Point x1 y1, Point x2 y2) =
@@ -38,7 +38,7 @@ markPoints ps m = foldr markPoint m ps
 countDuplicateElems :: [Line] -> Int
 countDuplicateElems input =
     let expanded   = map expand $ input
-        oceanFloor = foldr markPoints Map.empty $ expanded
+        oceanFloor = foldr markPoints Map.empty expanded
     in length $ filter (> 1) $ Map.elems $ oceanFloor
 
 main = do
