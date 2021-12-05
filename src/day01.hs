@@ -1,18 +1,14 @@
-countIncreasingValues :: [Int] -> Int
-countIncreasingValues [_] = 0
-countIncreasingValues (x1:x2:xs)
-    | x1 < x2 = 1 + countIncreasingValues (x2:xs)
-    | otherwise = countIncreasingValues (x2:xs)
-
-slidingWindows :: Int -> [Int] -> [Int]
-slidingWindows n xs
-    | length xs < n = []
-    | otherwise = (sum $ take n xs) : slidingWindows n (tail xs)
+countIncreasing :: Int -> [Int] -> Int
+countIncreasing windowSize depths =
+    let diffs xs = zipWith (-) (drop windowSize xs) xs
+    in length $ filter (> 0) $ diffs depths
 
 main = do
     contents <- getContents
-    let input = map read (lines contents)
+    let input = map read $ lines contents
+
     putStr "The number of increasing depth measurements: "
-    putStrLn $ show $ countIncreasingValues input
+    putStrLn $ show $ countIncreasing 1 input
+
     putStr "The number of increasing sums of sliding windows: "
-    putStrLn $ show $ countIncreasingValues $ slidingWindows 3 input
+    putStrLn $ show $ countIncreasing 3 input
