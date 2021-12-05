@@ -1,4 +1,5 @@
 import Data.Char
+import Data.List
 import qualified Data.Map as Map
 
 data Point = Point Int Int deriving (Eq, Ord)
@@ -7,15 +8,13 @@ type OceanFloor = Map.Map Point Int
 
 parsePoint :: String -> Point
 parsePoint s =
-    let s1 = takeWhile isDigit s
-        s2 = drop (length s1 + 1) s
-    in Point (read s1) (read s2)
+    let (s1, s2) = span isDigit s
+    in Point (read s1) (read $ tail s2)
 
 parseLine :: String -> Line
 parseLine s =
-    let s1 = takeWhile (not . isSpace) s
-        s2 = drop (length s1 + 4) s
-    in (parsePoint s1, parsePoint s2)
+    let (s1, s2) = break isSpace s
+    in (parsePoint s1, parsePoint $ drop 4 s2)
 
 isDiagonal :: Line -> Bool
 isDiagonal (Point x1 y1, Point x2 y2) = x1 /= x2 && y1 /= y2
