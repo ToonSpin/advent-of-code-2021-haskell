@@ -8,7 +8,7 @@ main = do
     let input = map read $ lines contents
 
     putStr "The number of increasing depth measurements: "
-    putStrLn $ show $ countIncreasing 1 input
+    print $ countIncreasing 1 input
 
     putStr "The number of increasing sums of sliding windows: "
-    putStrLn $ show $ countIncreasing 3 input
+    print $ countIncreasing 3 input

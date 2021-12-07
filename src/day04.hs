@@ -87,7 +87,7 @@ main = do
         lastToWin   = mark nextNumber2 $ firstNonwinningBoard $ last someWinning
 
     putStr "The score of the first board to win: "
-    putStrLn $ show $ score nextNumber firstToWin
+    print $ score nextNumber firstToWin
 
     putStr "The score of the last board to win: "
-    putStrLn $ show $ score nextNumber2 lastToWin
+    print $ score nextNumber2 lastToWin

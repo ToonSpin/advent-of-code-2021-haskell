@@ -25,7 +25,7 @@ main = do
         getOutput = (\ (Position depth distance _) -> depth * distance)
 
     putStr "Position times depth for part 1: "
-    putStrLn $ show $ getOutput $ foldl executeCommandP1 (Position 0 0 0) input
+    print $ getOutput $ foldl executeCommandP1 (Position 0 0 0) input
 
     putStr "Position times depth for part 2: "
-    putStrLn $ show $ getOutput $ foldl executeCommandP2 (Position 0 0 0) input
+    print $ getOutput $ foldl executeCommandP2 (Position 0 0 0) input

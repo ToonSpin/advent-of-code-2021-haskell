@@ -45,7 +45,7 @@ main = do
     let input = map parseLine $ lines contents
 
     putStr "Overlapping points among nondiagonal lines: "
-    putStrLn $ show $ countDuplicateElems $ filter (not . isDiagonal) input
+    print $ countDuplicateElems $ filter (not . isDiagonal) input
 
     putStr "Overlapping points among all lines: "
-    putStrLn $ show $ countDuplicateElems input
+    print $ countDuplicateElems input

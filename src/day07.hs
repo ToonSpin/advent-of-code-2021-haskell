@@ -18,7 +18,7 @@ main = do
     let input = getInput $ head $ lines contents
 
     putStr "The least amount of fuel at constant burn rate: "
-    putStrLn $ show $ minimum $ map (fuelCost id input) $ [0..length input]
+    print $ minimum $ map (fuelCost id input) $ [0..length input]
 
     putStr "The least amount of fuel at quadratic burn rate: "
-    putStrLn $ show $ minimum $ map (fuelCost partTwo input) $ [0..length input]
+    print $ minimum $ map (fuelCost partTwo input) $ [0..length input]

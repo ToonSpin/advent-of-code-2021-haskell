@@ -33,7 +33,7 @@ main = do
         co2Scrubber = partTwo input leastCommonDigit 0
 
     putStr "Gamma times epsilon: "
-    putStrLn $ show $ binToInt gamma * binToInt epsilon
+    print $ binToInt gamma * binToInt epsilon
 
     putStr "Oxygen generator times CO2 scrubber: "
-    putStrLn $ show $ binToInt o2Generator * binToInt co2Scrubber
+    print $ binToInt o2Generator * binToInt co2Scrubber

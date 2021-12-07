@@ -23,7 +23,7 @@ main = do
     let input = parsedToCounts $ parseFish $ head $ lines contents
 
     putStr "After 80 days: "
-    putStrLn $ show $ sum $ ticks 80 input
+    print $ sum $ ticks 80 input
 
     putStr "After 256 days: "
-    putStrLn $ show $ sum $ ticks 256 input
+    print $ sum $ ticks 256 input
