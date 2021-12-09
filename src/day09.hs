@@ -64,8 +64,9 @@ findBasins :: Floor -> Set.Set Coords -> [Basin]
 findBasins f areas
     | Set.null areas = []
     | otherwise =
-        let basin = findBasin f areas
-        in basin : (findBasins f $ Set.difference areas basin)
+        let basin     = findBasin f areas
+            remaining = Set.difference areas basin
+        in basin : findBasins f remaining
 
 getBasins :: Floor -> [Basin]
 getBasins f =
