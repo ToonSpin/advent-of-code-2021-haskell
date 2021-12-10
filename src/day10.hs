@@ -18,14 +18,13 @@ isOpening _   = False
 
 buildChunk :: String -> String -> Chunk
 buildChunk queue ""  = Incomplete queue
-buildChunk [] (x:xs) = buildChunk [matching x] xs
-buildChunk queue (x:xs)
-    | isOpening x       = buildChunk (matching x : queue) xs
-    | x == (head queue) = buildChunk (tail queue) xs
-    | otherwise         = Corrupted x
+buildChunk queue@(q:qs) (x:xs)
+    | isOpening x = buildChunk (matching x : queue) xs
+    | x == q      = buildChunk qs xs
+    | otherwise   = Corrupted x
 
 chunkFromString :: String -> Chunk
-chunkFromString s  = buildChunk [] s
+chunkFromString (x:xs) = buildChunk [matching x] xs
 
 isIncomplete :: Chunk -> Bool
 isIncomplete (Incomplete _) = True
