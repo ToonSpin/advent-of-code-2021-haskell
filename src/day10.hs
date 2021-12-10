@@ -16,13 +16,16 @@ isOpening '{' = True
 isOpening '<' = True
 isOpening _   = False
 
-chunkFromString :: String -> String -> Chunk
-chunkFromString queue ""  = Incomplete queue
-chunkFromString [] (x:xs) = chunkFromString [matching x] xs
-chunkFromString queue (x:xs)
-    | isOpening x       = chunkFromString (matching x : queue) xs
-    | x == (head queue) = chunkFromString (tail queue) xs
+buildChunk :: String -> String -> Chunk
+buildChunk queue ""  = Incomplete queue
+buildChunk [] (x:xs) = buildChunk [matching x] xs
+buildChunk queue (x:xs)
+    | isOpening x       = buildChunk (matching x : queue) xs
+    | x == (head queue) = buildChunk (tail queue) xs
     | otherwise         = Corrupted x
+
+chunkFromString :: String -> Chunk
+chunkFromString s  = buildChunk [] s
 
 isIncomplete :: Chunk -> Bool
 isIncomplete (Incomplete _) = True
@@ -55,7 +58,7 @@ pickFinalScore xs =
 
 main = do
     contents <- getContents
-    let input = map (chunkFromString []) $ lines contents
+    let input = map chunkFromString $ lines contents
         (incomplete, corrupted) = partition isIncomplete input
 
     putStr "The total syntax error score of corrupted chunks: "
