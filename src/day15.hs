@@ -1,13 +1,23 @@
-import qualified Data.Set as Set
 import qualified Data.Map as Map
 import Data.List
 
-type Coords = (Int, Int)
-type Node   = (Int, Coords)
-type Cavern = Map.Map Coords Int
+type Coords    = (Int, Int)
+type Node      = (Int, Coords)
+type Cavern    = Map.Map Coords Int
+type NodeQueue = [Node]
 
-inputToCavern :: Int -> String -> Cavern
-inputToCavern n = matrixToCavern . (expandMatrix n) . stringToMatrix
+expandLine :: Int -> [Int] -> [Int]
+expandLine 1 xs = xs
+expandLine n xs =
+    let incremented = map (\ x -> 1 + (x `mod` 9)) xs
+    in xs ++ expandLine (n - 1) incremented
+
+expandH :: Int -> [[Int]] -> [[Int]]
+expandH n matrix = map (expandLine n) matrix
+
+expandMatrix :: Int -> [[Int]] -> [[Int]]
+expandMatrix 1 matrix = matrix
+expandMatrix n matrix = transpose $ expandH n $ transpose $ expandH n matrix
 
 stringToMatrix :: String -> [[Int]]
 stringToMatrix contents =
@@ -22,16 +32,25 @@ matrixToCavern matrix =
         enumerated = concat $ map lineToCoords $ zip [0..] $ matrix
     in foldr addEntry Map.empty enumerated
 
-expandH :: Int -> [[Int]] -> [[Int]]
-expandH n matrix =
-    let linePairs xs  = zip [0..] $ take n $ repeat xs
-        wrapRisk r = ((r - 1) `mod` 9) + 1
-        expandMulPair (f, xs) = map (wrapRisk . (+) f) xs
-        expandLine xs = concat $ map expandMulPair $ linePairs xs
-    in map expandLine matrix
+inputToCavern :: Int -> String -> Cavern
+inputToCavern n = matrixToCavern . (expandMatrix n) . stringToMatrix
 
-expandMatrix :: Int -> [[Int]] -> [[Int]]
-expandMatrix n matrix = transpose $ expandH n $ transpose $ expandH n matrix
+addSingleToQueue :: Node -> NodeQueue -> NodeQueue
+addSingleToQueue n [] = [n]
+addSingleToQueue n [x] = [min x n, max x n]
+addSingleToQueue n (x:xs)
+    | n > x = x : (addSingleToQueue n xs)
+    | otherwise = (n:x:xs)
+
+dedupQueue :: (Node -> Node -> Bool) -> NodeQueue -> NodeQueue
+dedupQueue _ [] = []
+dedupQueue _ [x] = [x]
+dedupQueue f (x:xs) = x : filter (not . f x) xs
+
+addToQueue :: [Node] -> NodeQueue -> NodeQueue
+addToQueue ns queue =
+    let match (_, p1) (_, p2) = p1 == p2
+    in dedupQueue match $ foldr addSingleToQueue queue ns
 
 getNeighbors :: Coords -> Cavern -> [Node]
 getNeighbors (x, y) cavern =
@@ -41,34 +60,24 @@ getNeighbors (x, y) cavern =
         query c p = p2n p $ Map.lookup p c
         in concat $ map (query cavern) ns
 
-dedupNodeList :: [Node] -> [Node]
-dedupNodeList [] = []
-dedupNodeList [x] = [x]
-dedupNodeList ((c,p):xs) = (c, p) : filter (\ (_, q) -> q /= p) xs
+maxCoord :: Cavern -> Int
+maxCoord cavern = maximum $ map snd $ Map.keys cavern
 
-addToQueue :: [Node] -> Set.Set Node -> Set.Set Node
-addToQueue ns queue =
-    let newSet = foldr Set.insert queue ns
-    in Set.fromList $ dedupNodeList $ Set.toList newSet
-
-getMinimumCost' :: Coords -> Set.Set Node -> Cavern -> Int
-getMinimumCost' dest queue cavern
+getMinimumCost' :: Coords -> NodeQueue -> Cavern -> Int
+getMinimumCost' _ [] _ = error "Can't find a path"
+getMinimumCost' dest ((costSoFar,start):queue) cavern
     | start == dest = costSoFar
     | otherwise =
         let neighbors      = getNeighbors start cavern
             newCavern      = Map.delete start cavern
             addCost (c, p) = (c + costSoFar, p)
-            newQueue'      = addToQueue (map addCost neighbors) newQueue
-        in getMinimumCost' dest newQueue' newCavern
-    where ((costSoFar, start), newQueue) = Set.deleteFindMin queue
-
-maxCoord :: Cavern -> Int
-maxCoord cavern = maximum $ map snd $ Map.keys cavern
+            newQueue       = addToQueue (map addCost neighbors) queue
+        in getMinimumCost' dest newQueue newCavern
 
 getMinimumCost :: Cavern -> Int
 getMinimumCost cavern =
     let start = head $ getNeighbors (0, -1) cavern
-        queue = Set.fromList [(0, snd start)]
+        queue = [(0, snd start)]
         maxC  = maxCoord cavern
     in getMinimumCost' (maxC, maxC) queue cavern
 
