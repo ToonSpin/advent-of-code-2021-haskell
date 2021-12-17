@@ -1,6 +1,3 @@
-import qualified Data.Set as Set
-import Data.List
-
 data Cavern = Cavern [[Octopus]] Int Int
 type Coords = (Int, Int)
 data Octopus = Octopus Int Bool deriving (Show)
@@ -14,8 +11,8 @@ getInput s =
 flash :: Octopus -> Octopus
 flash (Octopus lightLevel _) = Octopus lightLevel True
 
-flashed :: Octopus -> Bool
-flashed (Octopus _ f) = f
+hasFlashed :: Octopus -> Bool
+hasFlashed (Octopus _ f) = f
 
 bumpLightLevel :: Octopus -> Octopus
 bumpLightLevel (Octopus lightLevel flashed) = Octopus (lightLevel + 1) flashed
@@ -26,9 +23,9 @@ resetOctopus (Octopus lightLevel _)
     | otherwise       = Octopus lightLevel False
 
 reset :: Cavern -> Cavern
-reset (Cavern cavern thisTurn total) =
-    let flashCount = length $ filter flashed $ concat cavern
-    in Cavern (map (map resetOctopus) cavern) flashCount (total + flashCount)
+reset (Cavern cavern _ total) =
+    let count = length $ filter hasFlashed $ concat cavern
+    in Cavern (map (map resetOctopus) cavern) count (total + count)
 
 bump :: Cavern -> Cavern
 bump (Cavern cavern thisTurn total) = Cavern (map (map bumpLightLevel) cavern) thisTurn total
@@ -46,11 +43,11 @@ mapOctopus (Cavern cavern  thisTurn total) f c =
     let mapSingle y (x, o)
             | (x, y) == c = f o
             | otherwise   = o
-        mapRow f (y, row) = map (mapSingle y) $ zip [0..] row
+        mapRow _ (y, row) = map (mapSingle y) $ zip [0..] row
     in Cavern (map (mapRow f) $ zip [0..] cavern)  thisTurn total
 
 mapOctopuses :: Cavern -> (Octopus -> Octopus) -> [Coords] -> Cavern
-mapOctopuses cavern f [] = cavern
+mapOctopuses cavern _ [] = cavern
 mapOctopuses cavern f (c:cs) =
     let mapped = mapOctopus cavern f c
     in mapOctopuses mapped f cs
@@ -84,7 +81,7 @@ neighbors (x, y) =
             | y == 0 = [y, y + 1]
             | y == 9 = [y - 1, y]
             | otherwise = [y - 1, y, y + 1]
-    in filter (/= (x, y)) ((\ x y -> (x, y)) <$> xs <*> ys)
+    in filter (/= (x, y)) ((\ p q -> (p, q)) <$> xs <*> ys)
 
 enumerateOctopuses :: Cavern -> [(Coords, Octopus)]
 enumerateOctopuses (Cavern cavern _ _) =
@@ -97,6 +94,7 @@ enumerateToFlash cavern =
     let toFlash (_, o) = needsFlashing o
     in filter toFlash $ enumerateOctopuses cavern
 
+main :: IO ()
 main = do
     contents <- getContents
     let input               = getInput contents

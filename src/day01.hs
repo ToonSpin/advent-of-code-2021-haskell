@@ -3,6 +3,7 @@ countIncreasing windowSize depths =
     let diffs xs = zipWith (-) (drop windowSize xs) xs
     in length $ filter (> 0) $ diffs depths
 
+main :: IO ()
 main = do
     contents <- getContents
     let input = map read $ lines contents

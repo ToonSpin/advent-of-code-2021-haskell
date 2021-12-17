@@ -4,9 +4,9 @@ parseFish (',':xs) = parseFish xs
 parseFish (x:xs) = read [x] : parseFish xs
 
 parsedToCounts :: [Int] -> [Int]
-parsedToCounts xs =
+parsedToCounts fs =
     let count xs n = length $ filter (== n) xs
-    in map (count xs) [0..8]
+    in map (count fs) [0..8]
 
 tick :: [Int] -> [Int]
 tick xs =
@@ -18,6 +18,7 @@ tick xs =
 ticks :: Int -> [Int] -> [Int]
 ticks n xs = head $ drop n $ iterate tick xs
 
+main :: IO ()
 main = do
     contents <- getContents
     let input = parsedToCounts $ parseFish $ head $ lines contents

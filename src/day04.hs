@@ -4,11 +4,10 @@ data BingoCell = Marked Int | Unmarked Int deriving Show
 type BingoBoard = [[BingoCell]]
 
 split :: Char -> String -> [String]
-split c s =
-    let compareChars = (\ a b -> (a == c) == (b == c))
-        discardGlue  = filter ((/= c) . head)
-        reattach l   = if head s == c then []:l else l
-    in reattach $ discardGlue $ groupBy compareChars s
+split _ [] = []
+split c xs =
+    let (first, second) = span (/= c) xs
+    in first : (split c $ tail second)
 
 chunks :: Int -> [a] -> [[a]]
 chunks _ [] = []
@@ -20,9 +19,8 @@ getDrawn :: String -> [Int]
 getDrawn s = map read $ split ',' $ head $ lines s
 
 getBingoBoards :: String -> [BingoBoard]
-getBingoBoards s =
-    let input         = tail $ tail $ lines s
-        nonempty      = filter (not . null) input
+getBingoBoards input =
+    let nonempty      = filter (not . null) $ drop 2 $ lines input
         intsFromRow s = map read $ words s
         intsToCells l = map (\ i -> Unmarked i) l
     in chunks 5 $ map intsToCells $ map intsFromRow nonempty
@@ -71,11 +69,14 @@ score lastDrawn board =
         totalScore   = sum $ map rowScore board
     in lastDrawn * totalScore
 
+markAll :: [BingoBoard] -> Int -> [BingoBoard]
+markAll xs n = map (mark n) xs
+
+main :: IO ()
 main = do
     contents <- getContents
     let boards      = getBingoBoards contents
         drawn       = getDrawn contents
-        markAll l n = map (mark n) l
         iteration   = scanl markAll boards drawn
 
         nonWinning  = takeWhile noBoardsAreWinning $ iteration

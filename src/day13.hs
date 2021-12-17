@@ -1,7 +1,7 @@
 import Data.Char
 
-data Point = Point Int Int deriving (Eq, Show)
-data Fold = Horizontal Int | Vertical Int deriving (Show)
+data Point = Point Int Int deriving (Eq)
+data Fold = Horizontal Int | Vertical Int
 
 parsePoint :: String -> Point
 parsePoint s =
@@ -11,7 +11,7 @@ parsePoint s =
     in Point (read x) (read y)
 
 parsePoints :: String -> [Point]
-parsePoints s = map parsePoint $ filter isPoint $ lines s
+parsePoints input = map parsePoint $ filter isPoint $ lines input
     where isPoint s = not (null s) && isDigit (head s)
 
 parseFold :: String -> Fold
@@ -23,7 +23,7 @@ parseFold s =
     in toFold coord value
 
 parseFolds :: String -> [Fold]
-parseFolds s = map parseFold $ filter isFold $ lines s
+parseFolds input = map parseFold $ filter isFold $ lines input
     where isFold s = not (null s) && (head s) == 'f'
 
 foldCoordinate :: Int -> Int -> Int
@@ -38,10 +38,12 @@ dedup [] = []
 dedup (x:xs) = x : (dedup $ filter (/= x) xs)
 
 maxX :: [Point] -> Int
+maxX [] = error "Empty lists have no maximum"
 maxX [(Point x _)] = x
 maxX ((Point x _):ps) = maximum [x, maxX ps]
 
 maxY :: [Point] -> Int
+maxY [] = error "Empty lists have no maximum"
 maxY [(Point _ y)] = y
 maxY ((Point _ y):ps) = maximum [y, maxY ps]
 
@@ -53,6 +55,7 @@ pointsToLines ps =
         line y = [char x y | x <- [0..mx]]
     in map line [0..my]
 
+main :: IO ()
 main = do
     contents <- getContents
     let points       = parsePoints contents

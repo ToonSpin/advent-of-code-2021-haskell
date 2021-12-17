@@ -3,7 +3,7 @@ import Data.List
 mostCommonDigit :: String -> Char
 mostCommonDigit input =
     let zeroes = length $ filter (== '0') input
-    in  if (zeroes * 2) > length input then '0' else '1'
+    in if (zeroes * 2) > length input then '0' else '1'
 
 invertDigit :: Char -> Char
 invertDigit c = if c == '1' then '0' else '1'
@@ -23,6 +23,7 @@ partTwo input getFilterDigit position =
         filtered   = filter (\ s -> s !! position == toFilter) input
     in partTwo filtered getFilterDigit (position + 1)
 
+main :: IO ()
 main = do
     contents <- getContents
 

@@ -41,7 +41,7 @@ visitCave cave (dup, visited)
 
 isUnvisited :: String -> VisitCounter -> Bool
 isUnvisited "start" _ = False
-isUnvisited cave (False, visited) = True
+isUnvisited _ (False, _) = True
 isUnvisited cave (True, visited) = cave `Set.notMember` visited
 
 findPaths :: CaveSystem -> VisitCounter -> String -> String -> [Path]
@@ -55,6 +55,7 @@ findPaths system visited to from
             findFrom c = findPaths system newVisited to c
         in map (from :) $ concat $ map findFrom nextFroms
 
+main :: IO ()
 main = do
     contents <- getContents
     let input = getInput contents

@@ -1,5 +1,4 @@
 import Data.Char
-import Data.List
 import qualified Data.Map as Map
 
 data Point = Point Int Int deriving (Eq, Ord)
@@ -21,8 +20,8 @@ isDiagonal (Point x1 y1, Point x2 y2) = x1 /= x2 && y1 /= y2
 
 -- This assumes x1 /= x2 || y1 /= y2, because makeRange will return an infinite
 -- list if m == n
-expand :: Line -> [Point]
-expand (Point x1 y1, Point x2 y2) =
+expandLine :: Line -> [Point]
+expandLine (Point x1 y1, Point x2 y2) =
     let makeRange m n = [m, (m + signum (n - m)) .. n]
         xs = makeRange x1 x2
         ys = makeRange y1 y2
@@ -36,10 +35,11 @@ markPoints ps m = foldr markPoint m ps
 
 countDuplicateElems :: [Line] -> Int
 countDuplicateElems input =
-    let expanded   = map expand $ input
+    let expanded   = map expandLine $ input
         oceanFloor = foldr markPoints Map.empty expanded
     in length $ filter (> 1) $ Map.elems $ oceanFloor
 
+main :: IO ()
 main = do
     contents <- getContents
     let input = map parseLine $ lines contents

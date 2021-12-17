@@ -26,8 +26,8 @@ neighbors f (x, y) =
             | y == 0 = [y, y + 1]
             | y == (height f) - 1 = [y - 1, y]
             | otherwise = [y - 1, y, y + 1]
-        horiz = map (\ x -> (x, y)) xs
-        vert = map (\ y -> (x, y)) ys
+        horiz = map (\ p -> (p, y)) xs
+        vert = map (\ q -> (x, q)) ys
     in filter (/= (x, y)) (horiz ++ vert)
 
 getHeightAt :: Floor -> Coords -> Int
@@ -46,7 +46,7 @@ allCoords f =
     in  mkCoords <$> xs <*> ys
 
 buildBasin :: Floor -> Set.Set Coords -> [Coords] -> Basin
-buildBasin f areas [] = Set.empty
+buildBasin _ _ [] = Set.empty
 buildBasin f areas (cur:queue) =
     let nb        = neighbors f cur
         found     = filter (\ n -> n `Set.member` areas) nb
@@ -74,6 +74,7 @@ getBasins f =
         noNines  = Set.fromList $ filter (not . isNine) $ allCoords f
     in findBasins f noNines
 
+main :: IO ()
 main = do
     contents <- getContents
     let input      = getInput contents

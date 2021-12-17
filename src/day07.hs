@@ -8,11 +8,12 @@ getInput xs =
     in (read d) : getInput rest
 
 fuelCost :: (Int -> Int) -> [Int] -> Int -> Int
-fuelCost f xs n = sum $ map (f . abs . (-) n) xs
+fuelCost f xs n = sum $ map (f . abs . (n -)) xs
 
 partTwo :: Int -> Int
 partTwo x = x * (x + 1) `div` 2
 
+main :: IO ()
 main = do
     contents <- getContents
     let input = getInput $ head $ lines contents

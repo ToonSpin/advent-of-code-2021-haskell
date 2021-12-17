@@ -40,6 +40,7 @@ getAnswer m =
     let values = Map.elems m
     in (maximum values) - (minimum values)
 
+main :: IO ()
 main = do
     contents <- getContents
 

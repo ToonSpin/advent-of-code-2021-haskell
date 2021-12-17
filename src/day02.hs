@@ -1,23 +1,43 @@
-data Command = Command Char Int
+data Instruction = Forward | Down | Up
+data Command = Command Instruction Int
 data Position = Position Int Int Int
 
 parseCommand :: [String] -> Command
-parseCommand [command, param] = Command (head command) (read param)
+parseCommand [command, param] =
+    let instruction = case command of
+            "forward" -> Forward
+            "down"    -> Down
+            "up"      -> Up
+            _         -> error $ "Error parsing instruction: " ++ command
+    in Command instruction (read param)
+parseCommand _                = error "Parse error"
+
+descend :: Int ->  Position -> Position
+descend x (Position depth distance aim) = Position (depth + x) distance aim
+
+descendWithAim :: Int ->  Position -> Position
+descendWithAim x pos@(Position _ _ aim) = descend (x * aim) pos
+
+ascend :: Int ->  Position -> Position
+ascend x = descend (-x)
+
+forward :: Int ->  Position -> Position
+forward x (Position depth distance aim) = Position depth (distance + x) aim
+
+adjustAim :: Int ->  Position -> Position
+adjustAim x (Position depth distance aim) = Position depth distance (aim + x)
 
 executeCommandP1 :: Position -> Command -> Position
-executeCommandP1 (Position depth distance aim) (Command command param) =
-    case command of
-        'f' -> Position depth (distance + param) aim
-        'd' -> Position (depth + param) distance aim
-        'u' -> Position (depth - param) distance aim
+executeCommandP1 pos (Command Forward param) = forward param pos
+executeCommandP1 pos (Command Down param) = descend param pos
+executeCommandP1 pos (Command Up param) = ascend param pos
 
 executeCommandP2 :: Position -> Command -> Position
-executeCommandP2 (Position depth distance aim) (Command command param) =
-    case command of
-        'f' -> Position (depth + aim * param) (distance + param) aim
-        'd' -> Position depth distance (aim + param)
-        'u' -> Position depth distance (aim - param)
+executeCommandP2 pos (Command Forward param) = descendWithAim param $ forward param pos
+executeCommandP2 pos (Command Down param) = adjustAim param pos
+executeCommandP2 pos (Command Up param) = adjustAim (-param) pos
 
+main :: IO ()
 main = do
     contents <- getContents
 
