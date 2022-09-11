@@ -3,14 +3,13 @@ import qualified Data.Set as Set
 import qualified Data.List as List
 
 type Range = (Int, Int)
-type Point = (Int, Int, Int)
 
 data OnOff = On | Off deriving (Show, Eq)
 
 data Cuboid = Cuboid { xRange :: Range
                      , yRange :: Range
                      , zRange :: Range
-                     } deriving (Show)
+                     } deriving (Show, Eq)
 
 data Rule = Rule { onOff :: OnOff
                  , cuboid :: Cuboid
@@ -99,13 +98,19 @@ splitRange splitter splittee =
     let firstSplit = splitRangeLowEdge (fst splitter) splittee
         in concat $ map (splitRangeHighEdge (snd splitter)) firstSplit
 
-splitCuboid :: Cuboid -> Cuboid -> [Cuboid]
-splitCuboid splitter splittee = [
+rawSplitCuboid :: Cuboid -> Cuboid -> [Cuboid]
+rawSplitCuboid splitter splittee = [
         Cuboid { xRange = xr, yRange = yr, zRange = zr }
         | xr <- splitRange (xRange splitter) (xRange splittee)
         , yr <- splitRange (yRange splitter) (yRange splittee)
         , zr <- splitRange (zRange splitter) (zRange splittee)
     ]
+
+splitCuboid :: Cuboid -> Cuboid -> [Cuboid]
+splitCuboid splitter splittee =
+    let rawSplit          = rawSplitCuboid splitter splittee
+        (contained, rest) = List.partition (containsCuboid splitter) rawSplit
+    in  contained ++ joinPossible rest
 
 areAdjacent :: Range -> Range -> Bool
 areAdjacent r s
@@ -124,10 +129,8 @@ canJoinCuboids c d
     | and [areAdjacent (xRange c) (xRange d), yRange c == yRange d, zRange c == zRange d] = True
     | and [xRange c == xRange d, areAdjacent (yRange c) (yRange d), zRange c == zRange d] = True
     | and [xRange c == xRange d, yRange c == yRange d, areAdjacent (zRange c) (zRange d)] = True
-    | otherwise                                       = False
-    -- where cx = xRange c == xRange d
-    --       cy = yRange c == yRange d
-    --       cz = zRange c == zRange d
+    | otherwise = False
+
 
 joinCuboids :: Cuboid -> Cuboid -> Cuboid
 joinCuboids c d
@@ -150,11 +153,6 @@ joinCuboids c d
     where cx = xRange c == xRange d
           cy = yRange c == yRange d
           cz = zRange c == zRange d
-
-shouldJoin :: [Cuboid] -> Bool
-shouldJoin cs
-    | length cs < 100 = False
-    | otherwise       = True
 
 joinPair :: [Cuboid] -> ([Cuboid], Bool)
 joinPair [] = ([], False)
@@ -184,8 +182,7 @@ applyRule cs (Rule onOff cuboid)
     | onOff == On = cuboid:processed
     | otherwise   = processed
     where afterSplit = concat $ map (splitCuboid cuboid) cs
-          filtered   = filter (not . (containsCuboid cuboid)) afterSplit
-          processed  = joinPossible filtered
+          processed  = filter (not . (containsCuboid cuboid)) afterSplit
 
 rangeSpan :: Range -> Int
 rangeSpan r = ((snd r) - (fst r)) + 1
@@ -199,7 +196,9 @@ main = do
     let input = map readRule $ lines contents
 
     let partOne = foldl applyRule [] (confineRulesToInit input)
-    print $ sum (map volume partOne)
+    putStr "Number of on cubes in the initial phase: "
+    putStrLn $ show (sum (map volume partOne))
 
     let partTwo = foldl applyRule [] input
-    print $ sum (map volume partTwo)
+    putStr "Number of on cubes after the full reboot: "
+    putStrLn $ show (sum (map volume partTwo))
